@@ -62,15 +62,26 @@ export const usersSlice = createSlice({
 	reducers: {
 		addNewUser: (state, action: PayloadAction<User>) => {
 			const id = crypto.randomUUID();
-			return [...state, { id, ...action.payload }];
+			// Redux Toolkit usa Immer.js por debajo, lo que permite mutar el estado directamente
+			state.push({ id, ...action.payload });
+			// return [...state, { id, ...action.payload }];
 		},
 		deleteUserById: (state, action: PayloadAction<userId>) => {
 			const id = action.payload;
 			return state.filter((user) => user.id !== id);
+		},
+		rollbackUser: (state, action: PayloadAction<UserWithId>) => {
+			const isUserAlreadyDefined = state.some(
+				(user) => user.id === action.payload.id,
+			);
+			if (!isUserAlreadyDefined) {
+				state.push(action.payload);
+				// return [...state, action.payload];
+			}
 		},
 	},
 });
 
 export default usersSlice.reducer;
 
-export const { addNewUser, deleteUserById } = usersSlice.actions;
+export const { addNewUser, deleteUserById, rollbackUser } = usersSlice.actions;
